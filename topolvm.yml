@@ -1,0 +1,19 @@
+
+
+
+- hosts: _topolvm_
+  tags: [ "topolvm", "topolvm_lvmd" ]
+  roles:
+  - topolvm_lvmd
+
+- hosts: kube-master
+  tags: [ "topolvm", "topolvm_master" ]
+#  environment:
+#    KUBECONFIG: "/root/.kube/config"
+#    K8S_AUTH_KUBECONFIG: "/root/.kube/config"
+  vars:
+    topolvm_state: present
+  roles:
+  - topolvm_master
+
+

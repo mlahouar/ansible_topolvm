@@ -1,0 +1,58 @@
+all:
+  vars:
+    ansible_ssh_private_key_file: ../keys/build_key
+    ansible_user: root
+
+    topolvm_lvmd_tgz_url: https://github.com/topolvm/topolvm/releases/download/v0.5.3/lvmd-0.5.3.tar.gz      # Tested with 0.5.3
+    topolvm_version: 0.5.3 # Tested with 0.5.3
+
+    topolvm_volumes_groups:
+      - name: topolvm-ssd1
+        physical_volumes:
+        - /dev/sdb
+        size: 200
+
+      - name: topolvm-hdd1
+        physical_volumes:
+        - /dev/sdc
+        size: 100
+
+
+    topolvm_device_classes:
+      - fstype: xfs
+        allow_volume_expansion: false
+        name: ssd1
+        spare_gb: 1
+        storage_class: topolvm-ssd1
+        volume_group: topolvm-ssd1
+        default: true
+
+      - fstype: xfs
+        allow_volume_expansion: false
+        name: hdd1
+        spare_gb: 1
+        storage_class: topolvm-hdd1
+        volume_group: topolvm-hdd1
+        default: false
+
+  children:
+    k8s-cluster:
+      vars:
+        kubelet_fail_swap_on: false
+      children:
+        kube-master:
+          hosts:
+            m1:
+              ansible_host: m1.kspray2.ctb02
+            m2:
+              ansible_host: m2.kspray2.ctb02
+        _topolvm_:
+          hosts:
+            s1:
+              ansible_host: s1.kspray2.ctb02
+            s2:
+              ansible_host: s2.kspray2.ctb02
+            s3:
+              ansible_host: s3.kspray2.ctb02
+            s4:
+              ansible_host: s4.kspray2.ctb02
